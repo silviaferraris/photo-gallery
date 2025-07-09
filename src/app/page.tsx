@@ -8,7 +8,7 @@ import LoginPage from './login/page'
 
 interface Photo {
   id: string
-  image_url: string
+  asset_name: string
   title: string
 }
 
@@ -41,12 +41,10 @@ export default function Home() {
   }, [])
 
 
-  const deletePhoto = (id: string, imageUrl: string) => {
+  const deletePhoto = (id: string, assetName: string) => {
       
-      const path = decodeURI(imageUrl).split("/").slice(-2).join("/")
-
       supabase.from('photos').delete().eq('id', id).then((value) => {
-        supabase.storage.from("photo-gallery").remove([path])
+        supabase.storage.from("photo-gallery").remove([assetName])
         const newPhotos = photos.filter((photo) => photo.id !== id)
         setPhotos(newPhotos)
       })

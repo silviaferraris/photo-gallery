@@ -1,9 +1,10 @@
 import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 interface Photo {
   id: string;
-  image_url: string;
+  asset_name: string;
   title: string;
 }
 
@@ -28,32 +29,44 @@ function CardActionButton(props: ActionButtonProps) {
 
 export default function PhotoCard({ photo, deletePhoto }: { photo: Photo, deletePhoto: (id: string, imageUrl: string) => void }) {
 
+  const [imageData, setImageData] = useState<string | undefined>(undefined)
 
   const downloadPhoto = () => {
     
-    fetch(photo.image_url)
-      .then(response => response.blob())
-      .then(blob => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.style = "display: none";
-        a.download = photo.title;
-        document.body.appendChild(a);
-        a.click();
-        a.remove()
-      })
-      .catch(() => {
-        //TODO: gestione errore
-      });
+    if (!imageData) return
+
+    const a = document.createElement("a");
+    a.href = imageData;
+    a.style = "display: none";
+    a.download = photo.title;
+    document.body.appendChild(a);
+    a.click();
+    a.remove()
+
   }
 
-  
+  useEffect(() => {
+
+    const projectId = "asfbmseyugopgsgrwyxl"
+    const bucket = "photo-gallery"
+    const photoUrl = `https://${projectId}.supabase.co/storage/v1/object/authenticated/${bucket}/${photo.asset_name}`
+
+    supabase.auth.getSession().then(session => {
+      fetch(photoUrl, {
+        headers: {
+          'Authorization': `Bearer ${session.data.session?.access_token}`,
+        }
+      })
+      .then(res => res.blob())
+      .then(blob => setImageData(URL.createObjectURL(blob)))
+    })
+
+  }, [])
 
   return (
     <div className="group rounded overflow-hidden shadow-md bg-white">
       <div className="relative">
-        <img src={photo.image_url} alt={photo.title} className="w-full object-cover h-48"/>
+        {imageData && <img src={imageData} alt={photo.title} className="w-full object-cover h-48"/>}
         <div className="absolute top-0 w-full h-full bg-[#00000050] opacity-0 group-hover:opacity-100 ease-in-out duration-200">
           <CardActionButton className="absolute right-2 top-2" icon="/info.svg" color="bg-transparent" alt="Show photo information"/>
         </div>
@@ -62,7 +75,7 @@ export default function PhotoCard({ photo, deletePhoto }: { photo: Photo, delete
         <h4 className="font-semibold text-gray-700">{photo.title}</h4>
         <div className="flex gap-1">
           <CardActionButton icon="/download.svg" color="bg-blue-500" alt="Download photo" onClick={downloadPhoto}/>
-          <CardActionButton icon="/delete.svg" color="bg-red-500" alt="Delete photo" onClick={() => deletePhoto(photo.id, photo.image_url)}/>
+          <CardActionButton icon="/delete.svg" color="bg-red-500" alt="Delete photo" onClick={() => deletePhoto(photo.id, photo.asset_name)}/>
         </div>
       </div>
     </div>
