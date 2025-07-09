@@ -16,7 +16,7 @@ export default function UploadPage() {
     const filename = `${user.id}/${Date.now()}-${file.name}`
     const { error: uploadError } = await supabase.storage
       .from('photo-gallery')
-      .upload('silvia/'+filename, file)
+      .upload(filename, file)
 
     if (uploadError) {
       alert(uploadError.message)

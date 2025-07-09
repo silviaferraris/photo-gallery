@@ -13,7 +13,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-500 p-4">
       <h1 className="text-2xl font-bold mb-4">Login via Magic Link</h1>
       <input
         type="email"
@@ -24,7 +24,7 @@ export default function LoginPage() {
       <button onClick={handleLogin} className="bg-blue-500 text-white px-4 py-2 rounded">
         Invia Link
       </button>
-      <p className="mt-4 text-sm text-gray-500">{message}</p>
+      <p className="mt-4 text-sm text-white">{message}</p>
     </div>
   )
 }
