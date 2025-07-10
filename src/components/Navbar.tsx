@@ -2,7 +2,11 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabaseClient'
 import { useEffect, useState } from 'react'
 
-export default function Navbar() {
+interface NavbarProps {
+  openUploadForm: () => void;
+}
+
+export default function Navbar(props: NavbarProps) {
 
   const [logged, setLogged] = useState(false)
   
@@ -26,7 +30,8 @@ export default function Navbar() {
       <div className="space-x-4">
         {logged ? <Link href="#" onClick={logout} className="text-blue-600">Logout</Link> : <Link href="/login" className="text-blue-600">Login</Link>}
         <Link href="/" className="text-blue-600">Home</Link>
-        <Link href="/upload" className="text-blue-600">Carica</Link>
+        {false && <Link href="/upload" className="text-blue-600">Carica</Link>}
+        <button className="text-blue-600 cursor-pointer" onClick={props.openUploadForm}>Carica</button>
       </div>
     </nav>
   )

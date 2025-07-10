@@ -18,7 +18,7 @@ const SessionContext = createContext<Session | null>(null)
 export default function Home() {
   const [photos, setPhotos] = useState<Photo[]>([])
   const [session, setSession] = useState<Session | null>(null)
-  const [uploadFormOpen, setUploadFormOpen] = useState(true)
+  const [uploadFormOpen, setUploadFormOpen] = useState(false)
 
   useEffect(() => {
     const fetchPhotos = async () => {
@@ -60,7 +60,7 @@ export default function Home() {
     <SessionContext.Provider value={session}>
       {session ? 
       <>
-        <Navbar />
+        <Navbar openUploadForm={() => setUploadFormOpen(true)} />
         <div className="p-4 grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
           {photos.map((photo) => (
             <PhotoCard key={photo.id} photo={photo} deletePhoto={deletePhoto} />

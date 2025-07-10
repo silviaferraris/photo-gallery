@@ -93,7 +93,7 @@ export default function PhotoCard({ photo, deletePhoto }: { photo: Photo, delete
         </div>
       </div>
       <div className="p-2 flex justify-between items-center">
-        <h4 className="font-semibold text-gray-700">{photo.title}</h4>
+        <h4 className="font-semibold text-gray-700 text-nowrap truncate w-[80%]">{photo.title}</h4>
         <div className="flex gap-1">
           <CardActionButton icon="/download.svg" color="bg-blue-500" alt="Download photo" onClick={downloadPhoto}/>
           <CardActionButton icon="/delete.svg" color="bg-red-500" alt="Delete photo" onClick={() => deletePhoto(photo.id, photo.asset_name)}/>
