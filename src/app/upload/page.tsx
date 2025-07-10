@@ -14,7 +14,7 @@ export default function UploadPage() {
 
     setUploading(true)
     const filename = `${user.id}/${Date.now()}-${file.name}`
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError, data: photoData} = await supabase.storage
       .from('photo-gallery')
       .upload(filename, file)
 
@@ -23,12 +23,9 @@ export default function UploadPage() {
       return
     }
 
-    const { data } = supabase.storage.from('photo-gallery').getPublicUrl(filename)
-    const imageUrl = data.publicUrl
-
     await supabase.from('photos').insert({
       user_id: user.id,
-      image_url: imageUrl,
+      asset_name: photoData.path,
       title: title
     })
 

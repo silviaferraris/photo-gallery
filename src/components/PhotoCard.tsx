@@ -32,25 +32,45 @@ export default function PhotoCard({ photo, deletePhoto }: { photo: Photo, delete
   const [imageData, setImageData] = useState<string | undefined>(undefined)
 
   const downloadPhoto = () => {
-    
-    if (!imageData) return
 
-    const a = document.createElement("a");
-    a.href = imageData;
-    a.style = "display: none";
-    a.download = photo.title;
-    document.body.appendChild(a);
-    a.click();
-    a.remove()
+    supabase.storage.from('photo-gallery').download(photo.asset_name, {
+      transform: {
+        quality: 100
+      }
+    })
+    .then(res => {
+      if (res.data) {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(res.data);
+        a.style = "display: none";
+        a.download = photo.title;
+        document.body.appendChild(a);
+        a.click();
+        a.remove()
+      }
+    })
+
+    
 
   }
 
   useEffect(() => {
 
+    supabase.storage.from('photo-gallery').download(photo.asset_name, {
+      transform: {
+        width: 400,
+        resize: 'contain'
+      }
+    })
+    .then(res => {
+      if (res.data) setImageData(URL.createObjectURL(res.data))
+    })
+
+    /*
     const projectId = "asfbmseyugopgsgrwyxl"
     const bucket = "photo-gallery"
     const photoUrl = `https://${projectId}.supabase.co/storage/v1/object/authenticated/${bucket}/${photo.asset_name}`
-
+    
     supabase.auth.getSession().then(session => {
       fetch(photoUrl, {
         headers: {
@@ -60,6 +80,7 @@ export default function PhotoCard({ photo, deletePhoto }: { photo: Photo, delete
       .then(res => res.blob())
       .then(blob => setImageData(URL.createObjectURL(blob)))
     })
+      */
 
   }, [])
 

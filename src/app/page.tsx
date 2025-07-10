@@ -5,6 +5,7 @@ import PhotoCard from '@/components/PhotoCard'
 import Navbar from '@/components/Navbar'
 import { Session } from '@supabase/auth-js'
 import LoginPage from './login/page'
+import UploadForm from '@/components/UploadForm'
 
 interface Photo {
   id: string
@@ -17,6 +18,7 @@ const SessionContext = createContext<Session | null>(null)
 export default function Home() {
   const [photos, setPhotos] = useState<Photo[]>([])
   const [session, setSession] = useState<Session | null>(null)
+  const [uploadFormOpen, setUploadFormOpen] = useState(true)
 
   useEffect(() => {
     const fetchPhotos = async () => {
@@ -50,6 +52,10 @@ export default function Home() {
       })
   }
 
+  const closeUploadForm = () => {
+    setUploadFormOpen(false)
+  }
+
   return (
     <SessionContext.Provider value={session}>
       {session ? 
@@ -60,6 +66,7 @@ export default function Home() {
             <PhotoCard key={photo.id} photo={photo} deletePhoto={deletePhoto} />
           ))}
         </div>
+        {uploadFormOpen && <UploadForm closeCallback={closeUploadForm}/>}
       </> :
       <LoginPage/>
       }
