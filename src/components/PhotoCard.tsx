@@ -27,7 +27,7 @@ function CardActionButton(props: ActionButtonProps) {
 }
 
 
-export default function PhotoCard({ photo, deletePhoto }: { photo: Photo, deletePhoto: (id: string, imageUrl: string) => void }) {
+export default function PhotoCard({ photo, deletePhoto }: { photo: Photo, deletePhoto: (imageUrl: string) => void }) {
 
   const [imageData, setImageData] = useState<string | undefined>(undefined)
 
@@ -96,7 +96,7 @@ export default function PhotoCard({ photo, deletePhoto }: { photo: Photo, delete
         <h4 className="font-semibold text-gray-700 text-nowrap truncate w-[80%]">{photo.title}</h4>
         <div className="flex gap-1">
           <CardActionButton icon="/download.svg" color="bg-blue-500" alt="Download photo" onClick={downloadPhoto}/>
-          <CardActionButton icon="/delete.svg" color="bg-red-500" alt="Delete photo" onClick={() => deletePhoto(photo.id, photo.asset_name)}/>
+          <CardActionButton icon="/delete.svg" color="bg-red-500" alt="Delete photo" onClick={() => deletePhoto(photo.asset_name)}/>
         </div>
       </div>
     </div>

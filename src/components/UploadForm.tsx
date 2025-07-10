@@ -1,6 +1,7 @@
 import { DragEventHandler, useEffect, useState } from "react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabaseClient";
+import { Photo } from "@/app/page";
 
 function ImagePreview ({ file }: {file: File}) {
 
@@ -26,6 +27,7 @@ function ImagePreview ({ file }: {file: File}) {
 
 interface UploadFormProps {
     closeCallback: () => void;
+    onUpload: (photos: Photo[]) => void;
 }
 
 export default function UploadForm(props: UploadFormProps) {
@@ -81,6 +83,8 @@ export default function UploadForm(props: UploadFormProps) {
         setIsUploading(true)
         setErrorIndexes([])
 
+        const uploaded: Photo[] = []
+
         const promises = files.map(async (file, index) => {
             if (uploadedIndexes.includes(index)) return
 
@@ -101,10 +105,18 @@ export default function UploadForm(props: UploadFormProps) {
                 title: file.name
             })
 
+            uploaded.push({
+                id: "",
+                asset_name: photoData.path,
+                title: file.name
+            })
+
             setUploadedIndexes([...uploadedIndexes, index])
         })
 
         await Promise.allSettled(promises)
+
+        props.onUpload(uploaded)
 
         setIsUploading(false)
     }
@@ -130,7 +142,6 @@ export default function UploadForm(props: UploadFormProps) {
                                     <div className="h-10 flex items-center justify-center border-stone-500 border-t-1">
                                         <span className="text-stone-500">{file.name}</span>
                                     </div>
-                                    
                                     {
                                     uploadedIndexes.includes(index) ? <div className={overlayStyle}><Image src="/done.svg" width={50} height={50} alt=""/></div> : (
                                     errorIndexes.includes(index) ? <div className={overlayStyle}><Image src="/error.svg" width={50} height={50} alt=""/></div> : (
