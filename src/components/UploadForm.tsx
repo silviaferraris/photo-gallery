@@ -1,4 +1,4 @@
-import { DragEventHandler, useEffect, useState } from "react";
+import { ChangeEventHandler, DragEventHandler, InputEventHandler, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabaseClient";
 import { Photo } from "@/app/page";
@@ -37,6 +37,18 @@ export default function UploadForm(props: UploadFormProps) {
     const [isUploading, setIsUploading] = useState(false)
     const [uploadedIndexes, setUploadedIndexes] = useState<number[]>([])
     const [errorIndexes, setErrorIndexes] = useState<number[]>([])
+
+    const fileInput = useRef<HTMLInputElement>(null)
+
+    const openFileSelector = () => {
+        if (fileInput.current) fileInput.current.click()
+    }
+
+    const onFileInputChangeHandler: ChangeEventHandler<HTMLInputElement> = (e) => {
+        if (e.target.files) {
+            setFiles([...files, ...e.target.files])
+        }
+    }
 
     const onDropHandler: DragEventHandler = (e) => {
         if (isUploading) return
@@ -157,10 +169,14 @@ export default function UploadForm(props: UploadFormProps) {
                 </div>
             </div>
             <div className="h-[10%] p-3 w-full flex gap-2 justify-end">
-                <button style={{backgroundColor: isUploading ? "gray" : "red"}}  className="cursor-pointer flex items-center gap-2 p-3 rounded-sm" onClick={clear}>
-                    <span className="text-white uppercase font-bold">CLEAR</span>
+                <button style={{backgroundColor: isUploading ? "gray" : "#17c200"}}  className="cursor-pointer flex items-center gap-2 p-3 rounded-sm" onClick={openFileSelector}>
+                    <span className="text-white uppercase font-bold">Select files</span>
+                    <input type="file" className="absolute invisible" accept="image/*" ref={fileInput} onChange={onFileInputChangeHandler} multiple/>
                 </button>
-                <button style={{backgroundColor: isUploading ? "gray" : "blueviolet"}} className="cursor-pointer flex items-center gap-2 p-3 rounded-sm" onClick={upload}>
+                <button style={{backgroundColor: isUploading ? "gray" : "red"}}  className="cursor-pointer flex items-center gap-2 p-3 rounded-sm" onClick={clear}>
+                    <span className="text-white uppercase font-bold">Clear</span>
+                </button>
+                <button style={{backgroundColor: isUploading ? "gray" : "#038cfc"}} className="cursor-pointer flex items-center gap-2 p-3 rounded-sm" onClick={upload}>
                     {false && <Image src="/upload.svg" width={30} height={30} alt="close"/>}
                     <span className="text-white uppercase font-bold">Upload</span>
                 </button>
