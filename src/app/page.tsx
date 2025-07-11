@@ -27,6 +27,7 @@ export default function Home() {
   const [session, setSession] = useState<Session | null>(null)
   const [uploadFormOpen, setUploadFormOpen] = useState(false)
   const [info, setInfo] = useState<Photo | null>(null)
+  const [photoToDelete, setPhotoToDelete] = useState<Photo | null>(null)
 
   useEffect(() => {
     const fetchPhotos = async () => {
@@ -54,13 +55,19 @@ export default function Home() {
   }, [])
 
 
-  const deletePhoto = (assetName: string) => {
-      
-      supabase.from('photos').delete().eq('asset_name', assetName).then((value) => {
-        supabase.storage.from("photo-gallery").remove([assetName])
-        const newPhotos = photos.filter((photo) => photo.asset_name !== assetName)
-        setPhotos(newPhotos)
-      })
+  const requestDeletePhoto = (photo: Photo) => {
+    setPhotoToDelete(photo)
+  }
+
+  const confirmDeletePhoto = () => {
+    if (!photoToDelete) return
+
+    supabase.from('photos').delete().eq('asset_name', photoToDelete.asset_name).then(() => {
+      supabase.storage.from("photo-gallery").remove([photoToDelete.asset_name])
+      const newPhotos = photos.filter((p) => p.asset_name !== photoToDelete.asset_name)
+      setPhotos(newPhotos)
+      setPhotoToDelete(null)
+    })
   }
 
   const closeUploadForm = () => {
@@ -73,57 +80,97 @@ export default function Home() {
 
   return (
     <SessionContext.Provider value={session}>
-      {session ? 
-      <>
-        <Navbar openUploadForm={() => setUploadFormOpen(true)} />
-        <div className="p-4 grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-          {photos.map((photo) => (
-            <PhotoCard key={photo.asset_name} photo={photo} deletePhoto={deletePhoto} setInfo={setInfo} />
-          ))}
-        </div>
-        {info && 
-          <div className="fixed flex flex-col bg-white w-[60%] h-[50%] top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] rounded-sm overflow-hidden shadow-md/30 z-1">
-              <div className="bg-black/10 w-full h-[10%] flex items-center justify-end p-2 gap-2">
-                  <span className="text-stone-500 mr-auto truncate text-nowrap max-w-[90%]">{info.title}</span>
-                  <button className="cursor-pointer" onClick={() => setInfo(null)}>
-                      <Image src="/close.svg" width={20} height={20} alt="Close"/>
-                  </button>
-              </div>
-              <div className="w-full h-[85%] p-2">
-                  <form className="flex flex-col gap-2">
-                      <div className="flex flex-col gap-1">
-                          <label className="text-stone-500">Tags</label>
-                          {info.tags && info.tags.length > 0 && 
-                            <div className="border-1 border-stone-500 text-stone-500 rounded-sm p-1 flex gap-2">
-                              {info.tags.map((tag, index) => (
-                                <span key={index} className="bg-[#5061fa] rounded-2xl px-2 py-1 min-w-10 text-white flex items-center justify-center">{tag.name}</span>
-                              ))}
-                            </div>
-                          }
-                      </div>
-                      <div className="flex flex-col">
-                          <label className="text-stone-500">Date of creation</label>
-                          <p className="border-1 border-stone-500 text-stone-500 rounded-sm p-1">{new Date(info.created_at).toLocaleString()}</p>
-                      </div>
-                      <div className="flex flex-col">
-                          <label className="text-stone-500">File format</label>
-                          <p className="border-1 border-stone-500 text-stone-500 rounded-sm p-1">{info.file_extension.toUpperCase()}</p>
-                      </div>
-                      <div className="flex flex-col">
-                          <label className="text-stone-500">Note</label>
-                          <div className="border-1 border-stone-500 text-stone-500 rounded-sm p-1 max-h-25 overflow-y-auto">
-                              <p>{info.note}</p>
-                          </div>
-                      </div>
-                      
-                  </form>
-              </div>
+      {session ? (
+        <>
+          <div className="bg-white min-h-screen">
+            <Navbar openUploadForm={() => setUploadFormOpen(true)} />
+            <div className="text-center py-10 px-4 sm:px-8 md:px-16 bg-white border-b border-gray-200">
+              <h2 className="text-3xl font-bold text-gray-800 mb-3">Benvenuto nella tua galleria di ricordi</h2>
+              <p className="text-gray-600 max-w-2xl mx-auto mb-6">
+                Qui puoi conservare e rivedere i tuoi momenti più belli. Carica le foto dei tuoi viaggi, eventi speciali o giornate indimenticabili.
+              </p>
+              <button
+                onClick={() => setUploadFormOpen(true)}
+                className="bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-6 py-3 rounded-md shadow transition-colors cursor-pointer"
+              >
+                Upload
+              </button>
+            </div>
+            <div className="p-4 grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+              {photos.map((photo) => (
+                <div key={photo.asset_name} className="shadow-md rounded">
+                  <PhotoCard photo={photo} deletePhoto={() => requestDeletePhoto(photo)} setInfo={setInfo} />
+                </div>
+              ))}
+            </div>
           </div>
-        }
-        {uploadFormOpen && <UploadForm closeCallback={closeUploadForm} onUpload={onUploadHandler}/>}
-      </> :
-      <LoginPage/>
-      }
+          {info && 
+            <div className="fixed flex flex-col bg-white w-[90%] sm:w-[70%] md:w-[50%] lg:w-[40%] h-[60%] top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] rounded-xl overflow-hidden shadow-2xl z-50 border border-stone-200">
+              <div className="bg-[#f9f9f9] w-full h-[10%] flex items-center justify-between px-4 py-2 border-b border-stone-200">
+                <span className="text-gray-800 font-semibold truncate max-w-[85%]">{info.title}</span>
+                <button className="cursor-pointer hover:scale-110 transition-transform" onClick={() => setInfo(null)}>
+                  <Image src="/close.svg" width={20} height={20} alt="Close"/>
+                </button>
+              </div>
+              <div className="w-full h-[90%] p-4 overflow-y-auto space-y-4 text-sm text-gray-700">
+                <div>
+                  <label className="block font-medium text-gray-600 mb-1">Tags</label>
+                  {info.tags && info.tags.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {info.tags.map((tag, index) => (
+                        <span key={index} className="bg-blue-500 text-white text-xs rounded-full px-3 py-1">
+                          {tag.name}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-400">Nessun tag</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block font-medium text-gray-600 mb-1">Data di creazione</label>
+                  <p className="bg-gray-100 rounded-md px-3 py-2">{new Date(info.created_at).toLocaleString()}</p>
+                </div>
+                <div>
+                  <label className="block font-medium text-gray-600 mb-1">Formato file</label>
+                  <p className="bg-gray-100 rounded-md px-3 py-2">{info.file_extension.toUpperCase()}</p>
+                </div>
+                <div>
+                  <label className="block font-medium text-gray-600 mb-1">Note</label>
+                  <div className="bg-gray-100 rounded-md px-3 py-2 max-h-32 overflow-y-auto">
+                    <p>{info.note || "Nessuna nota"}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+          {photoToDelete && (
+            <div className="fixed flex flex-col bg-white w-[90%] sm:w-[70%] md:w-[50%] lg:w-[30%] h-auto top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] rounded-xl shadow-2xl z-50 border border-stone-200 p-6 space-y-4">
+              <h3 className="text-lg font-semibold text-gray-800">Conferma eliminazione</h3>
+              <p className="text-gray-600 text-sm">
+                Sei sicuro di voler eliminare la foto <span className="font-medium">"{photoToDelete.title}"</span>? Questa azione è irreversibile.
+              </p>
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md cursor-pointer"
+                  onClick={() => setPhotoToDelete(null)}
+                >
+                  Annulla
+                </button>
+                <button
+                  className="px-4 py-2 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md cursor-pointer"
+                  onClick={confirmDeletePhoto}
+                >
+                  Elimina
+                </button>
+              </div>
+            </div>
+          )}
+          {uploadFormOpen && <UploadForm closeCallback={closeUploadForm} onUpload={onUploadHandler} />}
+        </>
+      ) : (
+        <LoginPage />
+      )}
     </SessionContext.Provider>
   )
 }

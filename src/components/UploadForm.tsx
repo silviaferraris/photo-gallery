@@ -150,22 +150,28 @@ const PreviewCard = forwardRef<PreviewCardRef, PreviewCardProps>((props: Preview
             </div>
 
             {editFormOpen && 
-                <div className="absolute flex flex-col bg-white w-[60%] h-[50%] top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] rounded-sm overflow-hidden shadow-md/30 z-1">
+                <div className="absolute flex flex-col bg-white w-[60%] h-[50%] top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] rounded-md shadow-lg border border-gray-200 overflow-hidden z-1">
                     <div className="bg-black/10 w-full h-[15%] flex items-center justify-end p-2 gap-2">
                         <span className="text-stone-500 mr-auto truncate text-nowrap max-w-[90%]">{title}</span>
                         <button className="cursor-pointer" onClick={closeEditForm}>
                             <Image src="/close.svg" width={20} height={20} alt="Close"/>
                         </button>
                     </div>
-                    <div className="w-full h-[85%] p-2">
-                        <form className="flex flex-col gap-2">
-                            <div className="flex flex-col gap-1">
-                                <label htmlFor="tags" className="text-stone-500">Tags</label>
-                                <input className="border-1 border-stone-500 text-stone-500 rounded-sm px-1" type="text" id="tags" value={rawTags} onChange={(e) => setRawTags(e.target.value)} onBlur={onTagsChangeHandler}/>
+                    <div className="w-full h-[85%] p-4">
+                        <form className="flex flex-col gap-4">
+                            <div className="flex flex-col gap-2">
+                                <label htmlFor="tags" className="text-gray-700 font-semibold">Tags</label>
+                                <input 
+                                    className="rounded-md border border-gray-300 px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 focus:outline-none" 
+                                    type="text" id="tags" value={rawTags} onChange={(e) => setRawTags(e.target.value)} onBlur={onTagsChangeHandler}
+                                />
                             </div>
-                            <div className="flex flex-col">
-                                <label htmlFor="note" className="text-stone-500">Note</label>
-                                <textarea className="border-1 border-stone-500 text-stone-500 rounded-sm p-1" id="note" value={note} onChange={(e) => setNote(e.target.value)}></textarea>
+                            <div className="flex flex-col gap-2">
+                                <label htmlFor="note" className="text-gray-700 font-semibold">Note</label>
+                                <textarea 
+                                    className="rounded-md border border-gray-300 px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 focus:outline-none resize-none" 
+                                    id="note" value={note} onChange={(e) => setNote(e.target.value)}
+                                ></textarea>
                             </div>
                         </form>
                     </div>
@@ -260,19 +266,20 @@ export default function UploadForm(props: UploadFormProps) {
             props.onUpload(uploaded)
         })
         setIsUploading(false)
+        props.closeCallback(); 
     }
 
     const dragAreaColor = dragOver ? "#38a2ff" : "#c2c0c0"
 
     return (
-        <div className="fixed top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] rounded-md w-[50%] h-[600px] bg-white shadow-xl/30 flex flex-col overflow-hidden">
+        <div className="fixed top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] rounded-lg bg-white shadow-2xl border border-gray-100 w-[50%] h-[600px] flex flex-col overflow-hidden">
             <div className="h-[10%] p-3 w-full flex justify-end bg-black/20">
                 <button className="cursor-pointer" onClick={() => !isUploading && props.closeCallback()}>
                     <Image src="/close.svg" width={30} height={30} alt="close"/>
                 </button>
             </div>
             <div className="relative h-[80%] p-3" onDrop={onDropHandler} onDragOver={onDragOverHandler} onDragLeave={onDragLeaveHandler}>
-                <div style={{borderColor: dragAreaColor}} className={`p-3 w-full h-full border-6 border-dashed select-none rounded-md overflow-hidden`}>
+                <div style={{borderColor: dragAreaColor}} className={`p-3 w-full h-full border-2 border-dashed select-none rounded-md overflow-hidden`}>
                     
                     <div className="w-full h-full grid grid-cols-3 auto-rows-[150px] gap-4 overflow-y-auto">
                         {files.map((file, index) => {
@@ -290,14 +297,14 @@ export default function UploadForm(props: UploadFormProps) {
                 </div>
             </div>
             <div className="h-[10%] p-3 w-full flex gap-2 justify-end">
-                <button style={{backgroundColor: isUploading || editFormOpen ? "gray" : "#17c200"}}  className="cursor-pointer flex items-center gap-2 p-3 rounded-sm" onClick={openFileSelector}>
+                <button disabled={isUploading || editFormOpen} className="cursor-pointer flex items-center gap-2 p-3 rounded-md bg-indigo-500 hover:bg-indigo-600 transition duration-200 ease-in-out shadow-md" onClick={openFileSelector}>
                     <span className="text-white uppercase font-bold">Select files</span>
-                    <input type="file" className="absolute invisible" accept="image/*" ref={fileInput} onChange={onFileInputChangeHandler} multiple/>
+                    <input type="file" className="absolute w-0 h-0 opacity-0 pointer-events-none" accept="image/*" ref={fileInput} onChange={onFileInputChangeHandler} multiple/>
                 </button>
-                <button style={{backgroundColor: isUploading || editFormOpen ? "gray" : "red"}}  className="cursor-pointer flex items-center gap-2 p-3 rounded-sm" onClick={clear}>
+                <button disabled={isUploading || editFormOpen} className="cursor-pointer flex items-center gap-2 p-3 rounded-md bg-gray-500 hover:bg-gray-600 transition duration-200 ease-in-out shadow-md" onClick={clear}>
                     <span className="text-white uppercase font-bold">Clear</span>
                 </button>
-                <button style={{backgroundColor: isUploading || editFormOpen ? "gray" : "#038cfc"}} className="cursor-pointer flex items-center gap-2 p-3 rounded-sm" onClick={upload}>
+                <button disabled={isUploading || editFormOpen} className="cursor-pointer flex items-center gap-2 p-3 rounded-md bg-emerald-500 hover:bg-emerald-600 transition duration-200 ease-in-out shadow-md" onClick={upload}>
                     {false && <Image src="/upload.svg" width={30} height={30} alt="close"/>}
                     <span className="text-white uppercase font-bold">Upload</span>
                 </button>
