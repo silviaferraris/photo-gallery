@@ -25,6 +25,38 @@ function ImagePreview ({ file }: {file: File}) {
     )
 }
 
+interface PreviewCardProps {
+    file: File;
+    uploading: boolean;
+    uploaded: boolean;
+    error: boolean;
+}
+
+function PreviewCard (props: PreviewCardProps) {
+
+    const {file, uploading, uploaded, error} = props
+
+    return (
+        <div className="relative w-full h-full overflow-hidden flex flex-col  border-stone-500 border-1 rounded-sm">
+            <ImagePreview file={file}/>
+            <div className="h-10 flex items-center justify-center border-stone-500 border-t-1">
+                <span className="text-stone-500">{file.name}</span>
+            </div>
+            { (uploading || uploaded || error) &&
+                <div className="absolute top-0 left-0 w-full h-full bg-white/80 flex justify-center items-center">
+                    {
+                    uploaded ? <Image src="/done.svg" width={50} height={50} alt=""/> : (
+                    error ? <Image src="/error.svg" width={50} height={50} alt=""/> : (
+                    uploading && <Image src="/loading.gif" width={50} height={50} alt=""/>
+                    ))}
+                </div>
+            }
+
+            
+        </div>
+    )
+}
+
 interface UploadFormProps {
     closeCallback: () => void;
     onUpload: (photos: Photo[]) => void;
@@ -134,7 +166,6 @@ export default function UploadForm(props: UploadFormProps) {
     }
 
     const dragAreaColor = dragOver ? "#38a2ff" : "#c2c0c0"
-    const overlayStyle = "absolute top-0 left-0 w-full h-full bg-white/80 flex justify-center items-center"
 
     return (
         <div className="fixed top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] rounded-md w-[50%] h-[600px] bg-white shadow-xl/30 flex flex-col overflow-hidden">
@@ -149,17 +180,10 @@ export default function UploadForm(props: UploadFormProps) {
                     <div className="w-full h-full grid grid-cols-3 auto-rows-[150px] gap-4 overflow-y-auto">
                         {files.map((file, index) => {
                             return (
-                                <div key={index} className="relative w-full h-full overflow-hidden flex flex-col  border-stone-500 border-1 rounded-sm">
-                                    <ImagePreview file={file}/>
-                                    <div className="h-10 flex items-center justify-center border-stone-500 border-t-1">
-                                        <span className="text-stone-500">{file.name}</span>
-                                    </div>
-                                    {
-                                    uploadedIndexes.includes(index) ? <div className={overlayStyle}><Image src="/done.svg" width={50} height={50} alt=""/></div> : (
-                                    errorIndexes.includes(index) ? <div className={overlayStyle}><Image src="/error.svg" width={50} height={50} alt=""/></div> : (
-                                    isUploading && <div className={overlayStyle}><Image src="/loading.gif" width={50} height={50} alt=""/></div>
-                                    ))}
-                                </div>
+                                <PreviewCard key={index} file={file} 
+                                uploading={isUploading} 
+                                uploaded={uploadedIndexes.includes(index)} 
+                                error={errorIndexes.includes(index)}/>
                             )
                         })}
                     </div>
