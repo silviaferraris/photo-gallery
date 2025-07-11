@@ -131,9 +131,13 @@ export default function UploadForm(props: UploadFormProps) {
         let droppedFiles: File[]
         
         if (e.dataTransfer.items)
-            droppedFiles = [...e.dataTransfer.items].filter(item => item.kind === "file").map(item => item.getAsFile()).filter(file => file !== null)
+            droppedFiles = [...e.dataTransfer.items]
+                .filter(item => item.kind === "file")
+                .map(item => item.getAsFile())
+                .filter(file => file !== null)
+                .filter(file => file.type.startsWith("image/"))
         else 
-            droppedFiles = [...e.dataTransfer.files]
+            droppedFiles = [...e.dataTransfer.files].filter(file => file.type.startsWith("image/"))
         
         setFiles([...files, ...droppedFiles])
     }
