@@ -81,9 +81,11 @@ export default function PhotoCard({ photo, deletePhoto, setInfo }: { photo: Phot
   }, [])
 
   return (
-    <div className="group rounded overflow-hidden shadow-md bg-white">
+    <div className="group rounded overflow-hidden shadow-md bg-white h-full">
       <div className="relative">
-        {imageData && <img src={imageData} alt={photo.title} className="w-full object-cover h-48"/>}
+        {imageData ? <img src={imageData} alt={photo.title} className="w-full object-cover h-48"/> :
+        <img src="/no-image.jpg" className="w-full object-cover h-48" alt="No image"/>
+        }
         <div className="absolute top-0 w-full h-full bg-[#00000050] opacity-0 group-hover:opacity-100 ease-in-out duration-200">
           <CardActionButton className="absolute right-2 top-2" icon="/info.svg" color="bg-transparent" alt="Show photo information" onClick={() => setInfo(photo)}/>
         </div>

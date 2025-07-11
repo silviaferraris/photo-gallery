@@ -96,7 +96,7 @@ export default function Home() {
                 Upload
               </button>
             </div>
-            <div className="p-4 grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+            <div className="p-4 grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
               {photos.map((photo) => (
                 <div key={photo.asset_name} className="shadow-md rounded">
                   <PhotoCard photo={photo} deletePhoto={() => requestDeletePhoto(photo)} setInfo={setInfo} />

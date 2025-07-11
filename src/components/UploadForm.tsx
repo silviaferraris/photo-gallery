@@ -124,7 +124,7 @@ const PreviewCard = forwardRef<PreviewCardRef, PreviewCardProps>((props: Preview
 
     return (
         <>
-            <div className="relative w-full h-full overflow-hidden flex flex-col  border-stone-500 border-1 rounded-sm">
+            <div className="relative w-fill h-full overflow-hidden flex flex-col  border-stone-500 border-1 rounded-sm">
                 <ImagePreview file={file}/>
                 <button onClick={openEditForm} className="absolute bg-white w-7 h-7 top-1 right-1 rounded-2xl flex justify-center items-center opacity-40 hover:opacity-100 cursor-pointer">
                     <Image src="/edit.svg" width={20} height={20} alt="Edit"/>
@@ -158,15 +158,15 @@ const PreviewCard = forwardRef<PreviewCardRef, PreviewCardProps>((props: Preview
                         </button>
                     </div>
                     <div className="w-full h-[85%] p-4">
-                        <form className="flex flex-col gap-4">
-                            <div className="flex flex-col gap-2">
+                        <form className="grid grid-rows-2 h-full">
+                            <div className="flex flex-col gap-2 h-full">
                                 <label htmlFor="tags" className="text-gray-700 font-semibold">Tags</label>
                                 <input 
                                     className="rounded-md border border-gray-300 px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 focus:outline-none" 
                                     type="text" id="tags" value={rawTags} onChange={(e) => setRawTags(e.target.value)} onBlur={onTagsChangeHandler}
                                 />
                             </div>
-                            <div className="flex flex-col gap-2">
+                            <div className="flex flex-col gap-2 h-full">
                                 <label htmlFor="note" className="text-gray-700 font-semibold">Note</label>
                                 <textarea 
                                     className="rounded-md border border-gray-300 px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 focus:outline-none resize-none" 
@@ -281,7 +281,7 @@ export default function UploadForm(props: UploadFormProps) {
             <div className="relative h-[80%] p-3" onDrop={onDropHandler} onDragOver={onDragOverHandler} onDragLeave={onDragLeaveHandler}>
                 <div style={{borderColor: dragAreaColor}} className={`p-3 w-full h-full border-2 border-dashed select-none rounded-md overflow-hidden`}>
                     
-                    <div className="w-full h-full grid grid-cols-3 auto-rows-[150px] gap-4 overflow-y-auto">
+                    <div className="w-full h-full grid sm:grid-cols-1 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 auto-rows-[150px] gap-4 overflow-y-auto">
                         {files.map((file, index) => {
                             return (
                                 <PreviewCard setEditFormOpen={setEditFormOpen} editFormOpen={editFormOpen} key={index} file={file} ref={el => 
