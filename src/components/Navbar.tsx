@@ -2,11 +2,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabaseClient'
 import { useEffect, useState } from 'react'
 
-interface NavbarProps {
-  openUploadForm: () => void;
-}
-
-export default function Navbar(props: NavbarProps) {
+export default function Navbar() {
 
   const [logged, setLogged] = useState(false)
   

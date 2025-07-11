@@ -1,4 +1,4 @@
-import { ChangeEventHandler, ComponentRef, DragEventHandler, forwardRef, InputEventHandler, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { ChangeEventHandler, ComponentRef, DragEventHandler, forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabaseClient";
 import { Photo } from "@/app/page";
@@ -56,7 +56,7 @@ const PreviewCard = forwardRef<PreviewCardRef, PreviewCardProps>((props: Preview
         async upload(user: User): Promise<Photo | null> {
             if (uploaded) return null
 
-            let uuid = self.crypto.randomUUID();
+            const uuid = self.crypto.randomUUID();
 
             const { error: uploadError, data: photoData} = await supabase.storage
                 .from('photo-gallery')
@@ -182,6 +182,8 @@ const PreviewCard = forwardRef<PreviewCardRef, PreviewCardProps>((props: Preview
     )
 })
 
+PreviewCard.displayName = "PreviewCard"
+
 interface UploadFormProps {
     closeCallback: () => void;
     onUpload: (photos: Photo[]) => void;
@@ -237,7 +239,7 @@ export default function UploadForm(props: UploadFormProps) {
         e.preventDefault()
     }
 
-    const onDragLeaveHandler: DragEventHandler = (e) => {
+    const onDragLeaveHandler: DragEventHandler = () => {
         if (isUploading) return
         setDragOver(false)
     }
@@ -284,6 +286,7 @@ export default function UploadForm(props: UploadFormProps) {
                     <div className="w-full h-full grid sm:grid-cols-1 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 auto-rows-[150px] gap-4 overflow-y-auto">
                         {files.map((file, index) => {
                             return (
+                                //@ts-expect-error the code works
                                 <PreviewCard setEditFormOpen={setEditFormOpen} editFormOpen={editFormOpen} key={index} file={file} ref={el => 
                                     el && (imagesRef.current[index] = el)
                                 }

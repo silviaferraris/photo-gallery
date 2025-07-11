@@ -7,7 +7,6 @@ import { Session } from '@supabase/auth-js'
 import LoginPage from './login/page'
 import UploadForm from '@/components/UploadForm'
 import Image from 'next/image'
-import { Span } from 'next/dist/trace'
 
 export interface Photo {
   id: string;
@@ -83,7 +82,7 @@ export default function Home() {
       {session ? (
         <>
           <div className="bg-white min-h-screen">
-            <Navbar openUploadForm={() => setUploadFormOpen(true)} />
+            <Navbar />
             <div className="text-center py-10 px-4 sm:px-8 md:px-16 bg-white border-b border-gray-200">
               <h2 className="text-3xl font-bold text-gray-800 mb-3">Benvenuto nella tua galleria di ricordi</h2>
               <p className="text-gray-600 max-w-2xl mx-auto mb-6">
@@ -148,7 +147,7 @@ export default function Home() {
             <div className="fixed flex flex-col bg-white w-[90%] sm:w-[70%] md:w-[50%] lg:w-[30%] h-auto top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] rounded-xl shadow-2xl z-50 border border-stone-200 p-6 space-y-4">
               <h3 className="text-lg font-semibold text-gray-800">Conferma eliminazione</h3>
               <p className="text-gray-600 text-sm">
-                Sei sicuro di voler eliminare la foto <span className="font-medium">"{photoToDelete.title}"</span>? Questa azione è irreversibile.
+                Sei sicuro di voler eliminare la foto <span className="font-medium">&quot;{photoToDelete.title}&quot;</span>? Questa azione è irreversibile.
               </p>
               <div className="flex justify-end gap-3 pt-2">
                 <button
