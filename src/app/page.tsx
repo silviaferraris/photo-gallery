@@ -96,7 +96,7 @@ export default function Home() {
                           {info.tags && info.tags.length > 0 && 
                             <div className="border-1 border-stone-500 text-stone-500 rounded-sm p-1 flex gap-2">
                               {info.tags.map((tag, index) => (
-                                <span key={index} className="bg-[#5061fa] rounded-2xl px-2 py-1 text-white">{tag.name}</span>
+                                <span key={index} className="bg-[#5061fa] rounded-2xl px-2 py-1 min-w-10 text-white flex items-center justify-center">{tag.name}</span>
                               ))}
                             </div>
                           }
