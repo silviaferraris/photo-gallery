@@ -85,8 +85,6 @@ const PreviewCard = forwardRef<PreviewCardRef, PreviewCardProps>((props: Preview
             const photo = photoResult.data[0] as Photo
 
             const tagsResult = await supabase.from("tags").insert(tags.map(tag => {return {name: tag}})).select()
-
-            console.log(tagsResult)
             
             if (!tagsResult.data) {
                 setUploaded(true)
@@ -268,7 +266,7 @@ export default function UploadForm(props: UploadFormProps) {
 
     return (
         <div className="fixed top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] rounded-md w-[50%] h-[600px] bg-white shadow-xl/30 flex flex-col overflow-hidden">
-            <div className="h-[10%] p-3 w-full flex justify-end">
+            <div className="h-[10%] p-3 w-full flex justify-end bg-black/20">
                 <button className="cursor-pointer" onClick={() => !isUploading && props.closeCallback()}>
                     <Image src="/close.svg" width={30} height={30} alt="close"/>
                 </button>

@@ -1,12 +1,8 @@
+import { Photo } from "@/app/page";
 import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
-interface Photo {
-  id: string;
-  asset_name: string;
-  title: string;
-}
 
 interface ActionButtonProps {
   onClick?: () => void;
@@ -27,7 +23,7 @@ function CardActionButton(props: ActionButtonProps) {
 }
 
 
-export default function PhotoCard({ photo, deletePhoto }: { photo: Photo, deletePhoto: (imageUrl: string) => void }) {
+export default function PhotoCard({ photo, deletePhoto, setInfo }: { photo: Photo, deletePhoto: (imageUrl: string) => void, setInfo: (photo: Photo) => void }) {
 
   const [imageData, setImageData] = useState<string | undefined>(undefined)
 
@@ -89,7 +85,7 @@ export default function PhotoCard({ photo, deletePhoto }: { photo: Photo, delete
       <div className="relative">
         {imageData && <img src={imageData} alt={photo.title} className="w-full object-cover h-48"/>}
         <div className="absolute top-0 w-full h-full bg-[#00000050] opacity-0 group-hover:opacity-100 ease-in-out duration-200">
-          <CardActionButton className="absolute right-2 top-2" icon="/info.svg" color="bg-transparent" alt="Show photo information"/>
+          <CardActionButton className="absolute right-2 top-2" icon="/info.svg" color="bg-transparent" alt="Show photo information" onClick={() => setInfo(photo)}/>
         </div>
       </div>
       <div className="p-2 flex justify-between items-center">
