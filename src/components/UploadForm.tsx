@@ -1,7 +1,8 @@
-import { ChangeEventHandler, DragEventHandler, InputEventHandler, useEffect, useRef, useState } from "react";
+import { ChangeEventHandler, ComponentRef, DragEventHandler, forwardRef, InputEventHandler, useEffect, useImperativeHandle, useRef, useState } from "react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabaseClient";
 import { Photo } from "@/app/page";
+import { User } from "@supabase/supabase-js";
 
 function ImagePreview ({ file }: {file: File}) {
 
@@ -28,13 +29,51 @@ function ImagePreview ({ file }: {file: File}) {
 interface PreviewCardProps {
     file: File;
     uploading: boolean;
-    uploaded: boolean;
-    error: boolean;
 }
 
-function PreviewCard (props: PreviewCardProps) {
+interface PreviewCardRef {
+    upload: (user: User) => Promise<Photo | null>
+}
 
-    const {file, uploading, uploaded, error} = props
+const PreviewCard = forwardRef<PreviewCardRef, PreviewCardProps>((props: PreviewCardProps, ref) => {
+
+    const {file, uploading} = props
+
+    const [uploaded, setUploaded] = useState(false)
+    const [error, setError] = useState(false)
+
+    useImperativeHandle(ref, () => ({
+
+        async upload(user: User): Promise<Photo | null> {
+            if (uploaded) return null
+
+            let uuid = self.crypto.randomUUID();
+
+            const { error: uploadError, data: photoData} = await supabase.storage
+                .from('photo-gallery')
+                .upload(uuid, file)
+    
+            if (uploadError) {
+                setError(true)
+                return null
+            }
+        
+            await supabase.from('photos').insert({
+                user_id: user.id,
+                asset_name: photoData.path,
+                title: file.name
+            })
+
+            setUploaded(true)
+            
+            return {
+                id: "",
+                asset_name: photoData.path,
+                title: file.name
+            }
+        }
+
+    }))
 
     return (
         <div className="relative w-full h-full overflow-hidden flex flex-col  border-stone-500 border-1 rounded-sm">
@@ -51,11 +90,10 @@ function PreviewCard (props: PreviewCardProps) {
                     ))}
                 </div>
             }
-
             
         </div>
     )
-}
+})
 
 interface UploadFormProps {
     closeCallback: () => void;
@@ -67,10 +105,13 @@ export default function UploadForm(props: UploadFormProps) {
     const [dragOver, setDragOver] = useState(false)
     const [files, setFiles] = useState<File[]>([])
     const [isUploading, setIsUploading] = useState(false)
-    const [uploadedIndexes, setUploadedIndexes] = useState<number[]>([])
-    const [errorIndexes, setErrorIndexes] = useState<number[]>([])
 
     const fileInput = useRef<HTMLInputElement>(null)
+    const imagesRef = useRef<ComponentRef<typeof PreviewCard>[]>([])
+
+    useEffect(() => {
+        imagesRef.current = imagesRef.current.slice(0, files.length)
+    }, [files])
 
     const openFileSelector = () => {
         if (fileInput.current) fileInput.current.click()
@@ -112,56 +153,25 @@ export default function UploadForm(props: UploadFormProps) {
     const clear = () => {
         if(isUploading) return
         setFiles([])
-        setErrorIndexes([])
-        setUploadedIndexes([])
     }
 
     const upload = async () => {
-
-        if(isUploading) return
-
+        setIsUploading(true)
+        
         const user = (await supabase.auth.getUser()).data.user
-
         if(!user) return
 
-        setIsUploading(true)
-        setErrorIndexes([])
-
-        const uploaded: Photo[] = []
-
-        const promises = files.map(async (file, index) => {
-            if (uploadedIndexes.includes(index)) return
-
-            let uuid = self.crypto.randomUUID();
-
-            const { error: uploadError, data: photoData} = await supabase.storage
-                .from('photo-gallery')
-                .upload(uuid, file)
-    
-            if (uploadError) {
-                setErrorIndexes([...errorIndexes, index])
-                return
-            }
-        
-            await supabase.from('photos').insert({
-                user_id: user.id,
-                asset_name: photoData.path,
-                title: file.name
-            })
-
-            uploaded.push({
-                id: "",
-                asset_name: photoData.path,
-                title: file.name
-            })
-
-            setUploadedIndexes([...uploadedIndexes, index])
+        const p: Promise<Photo | null>[] = imagesRef.current.map(ref => {
+            return ref.upload(user)
         })
-
-        await Promise.allSettled(promises)
-
-        props.onUpload(uploaded)
-
+        
+        await Promise.allSettled(p).then(results => {
+            const uploaded = results
+                .filter(result => result.status === "fulfilled")
+                .map(result => result.value)
+                .filter(result => result !== null)
+            props.onUpload(uploaded)
+        })
         setIsUploading(false)
     }
 
@@ -180,10 +190,10 @@ export default function UploadForm(props: UploadFormProps) {
                     <div className="w-full h-full grid grid-cols-3 auto-rows-[150px] gap-4 overflow-y-auto">
                         {files.map((file, index) => {
                             return (
-                                <PreviewCard key={index} file={file} 
-                                uploading={isUploading} 
-                                uploaded={uploadedIndexes.includes(index)} 
-                                error={errorIndexes.includes(index)}/>
+                                <PreviewCard key={index} file={file} ref={el => 
+                                    el && (imagesRef.current[index] = el)
+                                }
+                                uploading={isUploading}/>
                             )
                         })}
                     </div>
