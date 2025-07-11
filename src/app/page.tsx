@@ -8,9 +8,13 @@ import LoginPage from './login/page'
 import UploadForm from '@/components/UploadForm'
 
 export interface Photo {
-  id: string
-  asset_name: string
-  title: string
+  id: string;
+  asset_name: string;
+  title: string;
+  file_extension: string;
+  note: string;
+  user_id: string;
+  created_at: string;
 }
 
 const SessionContext = createContext<Session | null>(null)
